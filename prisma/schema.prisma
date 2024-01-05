@@ -1,0 +1,84 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id
+  name String
+  email String @unique
+  password String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seller Seller?
+  carts Cart[]
+  orders Order[]
+}
+
+model Seller {
+  id String @id
+  userId String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products Product[]
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Product {
+  id String @id
+  sellerId String
+  name String
+  stock Int
+  price Int
+  category String
+  description String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  seller Seller @relation( fields: [sellerId], references: [id])
+  carts Cart[]
+  orderProducts OrderProduct[]
+}
+
+model Cart {
+  id String @id
+  productId String
+  userId String
+  quantity Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User @relation(fields: [userId], references: [id])
+  products Product @relation(fields: [productId], references: [id])
+}
+
+model Order{
+  id String @id
+  userId String
+  totalPrice Int
+  paymentMethod String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users User @relation(fields: [userId], references: [id])
+  orderProducts OrderProduct[]
+}
+
+model OrderProduct{
+  orderId String
+  productId String
+  quantity Int? @default(1)
+
+  @@id([orderId, productId])
+  orders Order @relation(fields: [orderId], references: [id])
+  products Product @relation(fields: [productId], references: [id])
+}
