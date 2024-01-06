@@ -4,9 +4,9 @@ import { v4 as uuid } from 'uuid';
 const prisma = new PrismaClient()
 
 interface ProductOrdered{
-    id: string,
-    quantity: number
-    price?: number
+    id: string;
+    quantity: number;
+    price?: number;
 }
 
 export const addOrder = async(userId: string, paymentMethod: string, productsOrdered: ProductOrdered[]): Promise<string> => {
@@ -46,4 +46,29 @@ export const addOrder = async(userId: string, paymentMethod: string, productsOrd
     })
 
     return id;
+}
+
+export const findOrdersBySellerId = async(sellerId: string): Promise<Order[]> => {
+    const sellerProducts: Product[] = await prisma.product.findMany({
+        where: {
+            sellerId: {
+                equals: sellerId
+            }
+        }
+    })
+
+    const productIds: Array<string> = sellerProducts.map( item => item.id)
+
+    const order: Order[] = (await prisma.orderProduct.findMany({
+        include: {
+            orders: true
+        },
+        where: {
+            productId: {
+                in: productIds
+            }
+        }
+    })).map( item => item.orders);
+
+    return order
 }

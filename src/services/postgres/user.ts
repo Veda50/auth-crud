@@ -76,16 +76,16 @@ export const createSellerUser = async (name: string, email: string, password: st
   };
 }
 
-export const verifySellerRole =async (id:string): Promise<boolean> => {
+export const verifySellerRole =async (userId:string): Promise<string> => {
   const seller = await prisma.seller.findFirst({
     where: {
-      id: {
-        equals: id
+      userId: {
+        equals: userId
       }
     }
   })
   if(seller){
-    return true
+    return seller.id
   }
-  throw new Error('Terjadi kesalahan')
+  throw new Error('Penjual tidak ditemukan')
 }

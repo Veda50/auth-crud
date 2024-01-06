@@ -21,14 +21,14 @@ export const addProduct =async (sellerId: string, name: string, stock: number, p
     return id;
 }
 
-export const findAll = async ():Promise<Product[]> => {
+export const findAllProducts = async ():Promise<Product[]> => {
     const products: Product[] = await prisma.product.findMany();
 
     return products;
 }
 
-export const findById = async (id: string): Promise<Product|null> =>{
-    const product:Product|null = await prisma.product.findUnique({
+export const findProductById = async (id: string): Promise<Product> =>{
+    const product:Product = await prisma.product.findUniqueOrThrow({
         where: {
             id: id
         }
@@ -37,7 +37,17 @@ export const findById = async (id: string): Promise<Product|null> =>{
     return product;
 }
 
-export const editById =async (id:string, newData: Partial<Product>)=> {
+export const findProductsBySellerId = async (sellerId: string): Promise<Product> =>{
+    const product:Product = await prisma.product.findFirstOrThrow({
+        where: {
+            sellerId: sellerId
+        }
+    });
+
+    return product;
+}
+
+export const editProductById =async (id:string, newData: Partial<Product>)=> {
     await prisma.product.update({
         data: {
             ...newData
@@ -48,7 +58,7 @@ export const editById =async (id:string, newData: Partial<Product>)=> {
     });
 }
 
-export const deleteById = async (id:string) => {
+export const deleteProductById = async (id:string) => {
     await prisma.product.delete({
         where: {
             id: id
